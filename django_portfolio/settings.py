@@ -8,7 +8,14 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key')
 
 DEBUG = "RENDER" not in os.environ
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    'MACIAS_MOREIRA_BRUNO_FERNANDO.onrender.com', # Cambia esto por el nombre que pusiste en Render
+    'localhost', 
+    '127.0.0.1'
+
+
+
+]
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
@@ -33,6 +40,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = "django_portfolio.urls"
@@ -56,10 +64,10 @@ TEMPLATES = [
 WSGI_APPLICATION = "django_portfolio.wsgi.application"
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='postgresql://postgres:postgres@localhost/postgres',
+        conn_max_age=600
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -75,6 +83,18 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = "/static/"
+
+if not DEBUG:
+    # Tell Django to copy statics to the 'staticfiles' directory
+    # in your application directory on Render.
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    
+    # Turn on WhiteNoise storage backend that takes care of compressing static files
+    # and creating unique names for each version so they can safely be cached forever.
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
